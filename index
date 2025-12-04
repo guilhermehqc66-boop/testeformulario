@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Contato (EmailJS) - Debug CORRIGIDO</title>
+  <script src="https://cdn.emailjs.com/sdk/4.0/email.min.js"></script>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;max-width:540px;margin:36px auto;padding:12px;}
+    label{display:block;margin-top:10px;font-weight:600;}
+    input,textarea,button{width:100%;padding:10px;margin-top:6px;border:1px solid #ccc;border-radius:6px}
+    button{background:#0b74ff;color:#fff;border:none;cursor:pointer}
+    pre{background:#f7f7f7;padding:10px;border-radius:6px;overflow:auto;height:180px}
+    .ok{color:green} .err{color:#b00020}
+  </style>
+</head>
+<body>
+  <h2>Formulário de Contato (EmailJS) — Debug Corrigido</h2>
+
+  <form id="contact-form">
+    <label for="name">Nome</label>
+    <input id="name" name="name" required />
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required />
+
+    <label for="phone">Telefone (celular)</label>
+    <input id="phone" name="phone" placeholder="+55 (11) 9xxxx-xxxx" />
+
+    <label for="message">Mensagem</label>
+    <textarea id="message" name="message" rows="5" required></textarea>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <p id="status"></p>
+
+  <h3>Log de debug (também aparece no Console)</h3>
+  <pre id="log">Aguardando envio...</pre>
+
+  <script>
+    // --> Substitua LOCALMENTE pelas suas chaves após regenerá-las no painel do EmailJS:
+    const EMAILJS_PUBLIC_KEY = "fe2q37Y8_zNKb8izL";   // ex: c3sfw8fZ...
+    const EMAILJS_SERVICE_ID  = "service_2jiyx2k"; // ex: service_2jiyx2k
+    const EMAILJS_TEMPLATE_ID = "template_kpq7v5k";// ex: template_kpq7v5k
+
+    // Defina utilitários antes de qualquer uso
+    function safeStringify(obj) {
+      try { return JSON.stringify(obj, null, 2); } catch(e) { return String(obj); }
+    }
+
+    // appendLog usará o elemento log que vamos buscar apenas depois do DOMContentLoaded.
+    function createAppender(logElement) {
+      return function appendLog(msg, isError=false, isSuccess=false) {
+        const time = new Date().toLocaleTimeString();
+        const prefix = (isError ? "[ERRO]" : (isSuccess ? "[OK]" : "[INFO]"));
+        const line = time + " " + prefix + " " + msg + "\n";
+        logElement.textContent += line;
+        console.log(prefix, msg);
+      };
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      // Agora o DOM está pronto — associe elementos
+      const form = document.getElementById("contact-form");
+      const status = document.getElementById("status");
+      const logEl = document.getElementById("log");
+      const appendLog = createAppender(logEl);
+
+      appendLog("DOM carregado. Inicializando...");
+
+      // Inicializa EmailJS (só precisa da public key no cliente)
+      try {
+        if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.includes("COLE_")) {
+          appendLog("AVISO: Public key não definida. Substitua EMAILJS_PUBLIC_KEY localmente antes de testar.", true);
+        } else {
+          emailjs.init(EMAILJS_PUBLIC_KEY);
+          appendLog("emailjs.init() chamado com a public key fornecida (verifique se é a correta).");
+        }
+      } catch (e) {
+        appendLog("Erro ao inicializar emailjs: " + safeStringify(e), true);
+      }
+
+      form.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        status.innerText = "";
+        appendLog("Evento submit recebido. Preparando parâmetros...");
+
+        const params = {
+          name: document.getElementById("name").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          phone: document.getElementById("phone").value.trim(),
+          message: document.getElementById("message").value.trim()
+        };
+
+        appendLog("Parâmetros: " + safeStringify(params));
+
+        if (!EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.includes("COLE_") ||
+            !EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID.includes("COLE_")) {
+          appendLog("ERRO: service_id ou template_id não configurados. Substitua os placeholders localmente.", true);
+          status.innerHTML = "<span class='err'>Erro de configuração (ids não definidos). Veja logs.</span>";
+          return;
+        }
+
+        appendLog(`Chamando emailjs.send('${EMAILJS_SERVICE_ID}', '${EMAILJS_TEMPLATE_ID}', params) ...`);
+
+        // Tenta enviar
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+          .then(function (response) {
+            appendLog("Resposta sucesso do emailjs.send: " + safeStringify(response), false, true);
+            status.innerHTML = "<span class='ok'>Mensagem enviada com sucesso!</span>";
+            form.reset();
+          })
+          .catch(async function (err) {
+            // err pode ser um objeto ou string — logue tudo
+            appendLog("Erro do emailjs.send: " + safeStringify(err), true);
+            status.innerHTML = "<span class='err'>Erro ao enviar. Veja logs e a aba Network no DevTools.</span>";
+
+            // Tentativa adicional: procure a última requisição fetch para api.emailjs.com na aba Network
+            // (Aqui só podemos instruir o usuário; não conseguimos ler a Network via JS por CORS)
+            try {
+              if (err && err.status) appendLog("HTTP status: " + err.status);
+              if (err && err.text) appendLog("Resposta text: " + err.text);
+            } catch(e){
+              appendLog("Erro ao extrair status/text do erro: " + safeStringify(e), true);
+            }
+          });
+      });
+    });
+  </script>
+</body>
+</html>
