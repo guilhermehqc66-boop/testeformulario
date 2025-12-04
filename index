@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>index</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulário de Contato</title>
 
-  <!-- SDK oficial EmailJS (versão browser) -->
+  <!-- EmailJS SDK oficial -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
+
 <body>
+
   <h2>Formulário de Contato</h2>
 
   <form id="contact-form">
-    <label>Nome:</label><br>
-    <input type="text" name="name" required><br>
+    <label>Nome:</label><br />
+    <input type="text" name="name" required /><br /><br />
 
-    <label>Email:</label><br>
-    <input type="email" name="email" required><br>
+    <label>Email:</label><br />
+    <input type="email" name="email" required /><br /><br />
 
-    <label>Telefone:</label><br>
-    <input type="text" name="phone"><br>
+    <label>Telefone:</label><br />
+    <input type="text" name="phone" /><br /><br />
 
-    <label>Mensagem:</label><br>
-    <textarea name="message" required></textarea><br>
+    <label>Mensagem:</label><br />
+    <textarea name="message" required></textarea><br /><br />
 
     <button type="submit">Enviar</button>
   </form>
@@ -29,28 +32,37 @@
   <p id="status"></p>
 
   <script>
-    // Inicializa EmailJS com sua public key
-    emailjs.init("fe2q37Y8_zNKb8izL");
+    // ====== CONFIGURE AQUI ======
+    const PUBLIC_KEY = "fe2q37Y8_zNKb8izL";
+    const SERVICE_ID = "service_2jiyx2k";
+    const TEMPLATE_ID = "template_kpq7v5k";
+    // ============================
 
-    // Quando o formulário for enviado
-    document.getElementById('contact-form')
-      .addEventListener('submit', function(event) {
+    // Inicializa EmailJS
+    emailjs.init(PUBLIC_KEY);
+
+    // Envio do formulário
+    document
+      .getElementById("contact-form")
+      .addEventListener("submit", function (event) {
         event.preventDefault();
 
-        document.getElementById('status').innerText = "Enviando...";
+        document.getElementById("status").innerText = "Enviando...";
 
-        // Envia usando sendForm, conforme documentação
-        emailjs.sendForm(
-          "service_2jiyx2k",
-          "template_kpq7v5k",
-          this
-        ).then(function(response) {
-          console.log('SUCCESS!', response.status, response.text);
-          document.getElementById('status').innerText = "Mensagem enviada com sucesso!";
-        }, function(error) {
-          console.log('FAILED...', error);
-          document.getElementById('status').innerText = "Falha ao enviar: " + JSON.stringify(error);
-        });
+        emailjs
+          .sendForm(SERVICE_ID, TEMPLATE_ID, this)
+          .then(
+            function (response) {
+              console.log("SUCESSO!", response);
+              document.getElementById("status").innerText =
+                "Mensagem enviada com sucesso!";
+            },
+            function (error) {
+              console.log("ERRO...", error);
+              document.getElementById("status").innerText =
+                "Falha ao enviar → " + JSON.stringify(error);
+            }
+          );
       });
   </script>
 </body>
