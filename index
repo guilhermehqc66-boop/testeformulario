@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Formulário de Contato — EmailJS</title>
+  <title>index</title>
 
   <!-- SDK oficial EmailJS (versão browser) -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
