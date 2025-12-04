@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Formulário EmailJS</title>
+
+<style>
+    body {
+        background: #111;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        padding: 20px;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        gap: 10px;
+    }
+    input, textarea {
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+    }
+    button {
+        padding: 10px;
+        background: #0f0;
+        color: #000;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    pre {
+        background: #000;
+        padding: 15px;
+        margin-top: 20px;
+        height: 300px;
+        overflow-y: auto;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+
+<h2>Formulário EmailJS</h2>
+
+<form id="contact-form">
+    <input type="text" name="name" placeholder="Nome" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="text" name="phone" placeholder="Celular" required>
+    <textarea name="message" placeholder="Mensagem" required></textarea>
+    <button type="submit">Enviar</button>
+</form>
+
+<h3>DEBUG LOG</h3>
+<pre id="log">Aguardando envio...</pre>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<script>
+// Área de log
+const logEl = document.getElementById("log");
+function log(...msg) {
+    logEl.textContent += "\n" + msg.join(" ");
+}
+document.addEventListener("DOMContentLoaded", () => {
+    log("[INFO] DOM carregado. Tentando inicializar EmailJS...");
+
+    try {
+        emailjs.init("c3sfw8fZ4I6oarzfa"); // SUA PUBLIC KEY
+        log("[OK] EmailJS inicializado com sucesso!");
+    } catch (err) {
+        log("[ERRO] Falha ao inicializar EmailJS:", JSON.stringify(err));
+    }
+});
+
+// Envio do formulário
+document.getElementById("contact-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    log("\n[INFO] Enviando email...");
+
+    const params = {
+        name: this.name.value,
+        email: this.email.value,
+        phone: this.phone.value,
+        message: this.message.value
+    };
+
+    log("[INFO] Parâmetros:", JSON.stringify(params, null, 2));
+
+    emailjs
+        .send("service_2jiyx2k", "template_kpq7v5k", params)
+        .then(response => {
+            log("[SUCESSO] Email enviado:", JSON.stringify(response));
+        })
+        .catch(error => {
+            log("[ERRO] Falha ao enviar:", JSON.stringify(error));
+        });
+});
+</script>
+
+</body>
+</html>
