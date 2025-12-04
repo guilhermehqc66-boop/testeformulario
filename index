@@ -1,103 +1,51 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Formulário EmailJS</title>
+  <meta charset="UTF-8" />
+  <title>Formulário Funcionando</title>
+  <script src="https://cdn.emailjs.com/sdk/2.3.2/email.min.js"></script>
 
-<style>
-    body {
-        background: #111;
-        color: #fff;
-        font-family: Arial, sans-serif;
-        padding: 20px;
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      emailjs.init("fe2q37Y8_zNKb8izL"); // sua PUBLIC KEY
+
+      console.log("SDK carregado.");
+    });
+
+    function sendEmail(e) {
+      e.preventDefault();
+
+      console.log("Enviando...");
+
+      emailjs.sendForm(
+        "service_2jiyx2k",      // SERVICE ID
+        "template_kpq7v5k",     // TEMPLATE ID
+        e.target               // O FORM em si
+      )
+      .then(function(response) {
+        alert("Enviado com sucesso!");
+        console.log("SUCCESS", response);
+      }, function(error) {
+        alert("Falha ao enviar!");
+        console.log("ERROR", error);
+      });
     }
-    form {
-        display: flex;
-        flex-direction: column;
-        width: 300px;
-        gap: 10px;
-    }
-    input, textarea {
-        padding: 10px;
-        border-radius: 5px;
-        border: none;
-    }
-    button {
-        padding: 10px;
-        background: #0f0;
-        color: #000;
-        font-weight: bold;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    pre {
-        background: #000;
-        padding: 15px;
-        margin-top: 20px;
-        height: 300px;
-        overflow-y: auto;
-        border-radius: 5px;
-    }
-</style>
+  </script>
+
 </head>
+
 <body>
 
-<h2>Formulário EmailJS</h2>
+  <h2>Formulário que funciona</h2>
 
-<form id="contact-form">
-    <input type="text" name="name" placeholder="Nome" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="text" name="phone" placeholder="Celular" required>
-    <textarea name="message" placeholder="Mensagem" required></textarea>
+  <form onsubmit="sendEmail(event)">
+    <input type="text" name="name" placeholder="Seu nome" required><br><br>
+    <input type="email" name="email" placeholder="Seu email" required><br><br>
+    <input type="text" name="phone" placeholder="Telefone"><br><br>
+    <textarea name="message" placeholder="Sua mensagem" required></textarea><br><br>
+
     <button type="submit">Enviar</button>
-</form>
-
-<h3>DEBUG LOG</h3>
-<pre id="log">Aguardando envio...</pre>
-
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
-<script>
-// Área de log
-const logEl = document.getElementById("log");
-function log(...msg) {
-    logEl.textContent += "\n" + msg.join(" ");
-}
-document.addEventListener("DOMContentLoaded", () => {
-    log("[INFO] DOM carregado. Tentando inicializar EmailJS...");
-
-    try {
-        emailjs.init("c3sfw8fZ4I6oarzfa"); // SUA PUBLIC KEY
-        log("[OK] EmailJS inicializado com sucesso!");
-    } catch (err) {
-        log("[ERRO] Falha ao inicializar EmailJS:", JSON.stringify(err));
-    }
-});
-
-// Envio do formulário
-document.getElementById("contact-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    log("\n[INFO] Enviando email...");
-
-    const params = {
-        name: this.name.value,
-        email: this.email.value,
-        phone: this.phone.value,
-        message: this.message.value
-    };
-
-    log("[INFO] Parâmetros:", JSON.stringify(params, null, 2));
-
-    emailjs
-        .send("service_2jiyx2k", "template_kpq7v5k", params)
-        .then(response => {
-            log("[SUCESSO] Email enviado:", JSON.stringify(response));
-        })
-        .catch(error => {
-            log("[ERRO] Falha ao enviar:", JSON.stringify(error));
-        });
-});
-</script>
+  </form>
 
 </body>
 </html>
